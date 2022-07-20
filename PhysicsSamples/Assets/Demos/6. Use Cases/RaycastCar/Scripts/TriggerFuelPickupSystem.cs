@@ -55,7 +55,7 @@ public partial class TriggerFuelPickupSystem : SystemBase
             return;
         }
 
-        var ecb = endSimBufferSystem.CreateCommandBuffer();
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
         Dependency = new PickupFuelJob
         {
@@ -65,6 +65,9 @@ public partial class TriggerFuelPickupSystem : SystemBase
         }.Schedule(m_StepPhysicsWorldSystem.Simulation, Dependency);
 
         Dependency.Complete();
+
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 
     protected override void OnStartRunning()
@@ -95,7 +98,8 @@ public partial class TriggerFuelPickupSystem : SystemBase
 
             Entity fuelEntity;
             Entity triggerEntity;
-            //Does A have fuel
+
+            //Does A or B have fuel
             if (VehicleFuelGroup.HasComponent(entityA))
             {
                 fuelEntity = entityA;
