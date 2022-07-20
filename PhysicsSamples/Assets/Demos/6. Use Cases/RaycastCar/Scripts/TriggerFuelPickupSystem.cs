@@ -63,6 +63,8 @@ public partial class TriggerFuelPickupSystem : SystemBase
             VehicleFuelGroup = GetComponentDataFromEntity<VehicleFuel>(),
             ecbSystem = ecb
         }.Schedule(m_StepPhysicsWorldSystem.Simulation, Dependency);
+
+        Dependency.Complete();
     }
 
     protected override void OnStartRunning()
