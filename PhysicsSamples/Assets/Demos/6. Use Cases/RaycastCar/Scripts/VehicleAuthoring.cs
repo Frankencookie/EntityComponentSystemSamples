@@ -39,6 +39,14 @@ struct VehicleCameraReferences : IComponentData
     public Entity CameraFrom;
 }
 
+//NEW
+struct VehicleFuel : IComponentData
+{
+    public float MaxFuel;
+    public float CurrentFuel;
+    public float FuelConsumptionRate;
+}
+
 class VehicleAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     #pragma warning disable 649
@@ -57,6 +65,11 @@ class VehicleAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public Transform CameraTarget;
     public Transform CameraTo;
     public Transform CameraFrom;
+
+    //NEW
+    [Header("Fuel Settings")]
+    public float MaxFuel = 100.0f;
+    public float FuelConsumptionRate = 0.1f;
     #pragma warning restore 649
 
     void OnValidate()
@@ -98,6 +111,14 @@ class VehicleAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             CameraTarget = conversionSystem.GetPrimaryEntity(CameraTarget),
             CameraTo = conversionSystem.GetPrimaryEntity(CameraTo),
             CameraFrom = conversionSystem.GetPrimaryEntity(CameraFrom)
+        });
+
+        //NEW
+        dstManager.AddComponentData(entity, new VehicleFuel
+        {
+            MaxFuel = MaxFuel,
+            CurrentFuel = MaxFuel,
+            FuelConsumptionRate = FuelConsumptionRate
         });
     }
 }

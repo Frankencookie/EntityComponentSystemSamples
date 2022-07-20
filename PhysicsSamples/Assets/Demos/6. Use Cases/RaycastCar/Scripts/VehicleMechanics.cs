@@ -175,6 +175,37 @@ namespace Demos
             // we thus use PhysicsWorldExtensions rather than modifying component data, since they have already been consumed by BuildPhysicsWorld
             PhysicsWorld world = m_BuildPhysicsWorldSystem.PhysicsWorld;
 
+            //NEW - CALCULATE FUEL
+            var fuelBuffer = new EntityCommandBuffer(Allocator.TempJob);
+            Entities
+                .WithName("UpdateFuelJob")
+                .WithoutBurst()
+                .ForEach((
+                    Entity entity, in VehicleFuel fuel
+                    ) =>
+                    {
+                        if (HasComponent<VehicleFuel>(entity) && HasComponent<VehicleSpeed>(entity))
+                        {
+                            var vehicleFuel = GetComponent<VehicleFuel>(entity);
+
+                            if (vehicleFuel.CurrentFuel > 0)
+                            {
+                                var vehicleSpeed = GetComponent<VehicleSpeed>(entity);
+                                var consumption = vehicleFuel.FuelConsumptionRate * vehicleSpeed.DriveEngaged;
+                                vehicleFuel.CurrentFuel -= consumption * Time.DeltaTime;
+                            }
+
+                            fuelBuffer.SetComponent(entity, vehicleFuel);
+                        }
+                    })
+                .Run();
+            //Make sure fuel calculation is complete before continuing
+            //Dependency.Complete();
+
+            //Assign fuel values
+            fuelBuffer.Playback(EntityManager);
+            fuelBuffer.Dispose();
+
             // update each wheel
             var commandBuffer = new EntityCommandBuffer(Allocator.TempJob);
             Entities
@@ -208,6 +239,16 @@ namespace Demos
                             var vehicleSpeed = GetComponent<VehicleSpeed>(ce);
                             driveDesiredSpeed = vehicleSpeed.DesiredSpeed;
                             driveEngaged = vehicleSpeed.DriveEngaged != 0;
+                        }
+
+                        //If fuel is depleted, set driveEngaged to false
+                        if (HasComponent<VehicleFuel>(ce))
+                        {
+                            var vehicleFuel = GetComponent<VehicleFuel>(ce);
+                            if (vehicleFuel.CurrentFuel < 0)
+                            {
+                                driveEngaged = false;
+                            }
                         }
 
                         float desiredSteeringAngle = HasComponent<VehicleSteering>(ce)

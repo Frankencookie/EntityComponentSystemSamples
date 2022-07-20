@@ -35,6 +35,7 @@ partial class VehicleInputHandlingSystem : SystemBase
                 var newSteeringAngle = x * steering.MaxSteeringAngle;
                 steering.DesiredSteeringAngle = math.lerp(steering.DesiredSteeringAngle, newSteeringAngle, steering.Damping);
 
+
                 if (HasComponent<Rotation>(references.CameraOrbit))
                 {
                     var orientation = GetComponent<Rotation>(references.CameraOrbit);
