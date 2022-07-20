@@ -2550,7 +2550,7 @@ PrefabInstance:
     - target: {fileID: 501380635424137060, guid: 25ada1567cb4f4e508929ba4f66da21f,
         type: 3}
       propertyPath: FuelConsumptionRate
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7057765291315330617, guid: 25ada1567cb4f4e508929ba4f66da21f,
         type: 3}

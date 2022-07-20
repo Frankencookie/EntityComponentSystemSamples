@@ -176,7 +176,7 @@ namespace Demos
             PhysicsWorld world = m_BuildPhysicsWorldSystem.PhysicsWorld;
 
             //NEW - CALCULATE FUEL
-            var fuelBuffer = new EntityCommandBuffer(Allocator.TempJob);
+            var commandBuffer = new EntityCommandBuffer(Allocator.TempJob);
             Entities
                 .WithName("UpdateFuelJob")
                 .WithoutBurst()
@@ -193,9 +193,10 @@ namespace Demos
                                 var vehicleSpeed = GetComponent<VehicleSpeed>(entity);
                                 var consumption = vehicleFuel.FuelConsumptionRate * vehicleSpeed.DriveEngaged;
                                 vehicleFuel.CurrentFuel -= consumption * Time.DeltaTime;
+                                vehicleFuel.CurrentFuel = math.clamp(vehicleFuel.CurrentFuel, 0, vehicleFuel.MaxFuel);
                             }
 
-                            fuelBuffer.SetComponent(entity, vehicleFuel);
+                            commandBuffer.SetComponent(entity, vehicleFuel);
                         }
                     })
                 .Run();
@@ -203,11 +204,11 @@ namespace Demos
             //Dependency.Complete();
 
             //Assign fuel values
-            fuelBuffer.Playback(EntityManager);
-            fuelBuffer.Dispose();
+            //commandBuffer.Playback(EntityManager);
+            //commandBuffer.Dispose();
 
             // update each wheel
-            var commandBuffer = new EntityCommandBuffer(Allocator.TempJob);
+            //var commandBuffer = new EntityCommandBuffer(Allocator.TempJob);
             Entities
                 .WithName("VehicleWheelsJob")
                 .WithBurst()
@@ -241,11 +242,12 @@ namespace Demos
                             driveEngaged = vehicleSpeed.DriveEngaged != 0;
                         }
 
+                        //NEW
                         //If fuel is depleted, set driveEngaged to false
                         if (HasComponent<VehicleFuel>(ce))
                         {
                             var vehicleFuel = GetComponent<VehicleFuel>(ce);
-                            if (vehicleFuel.CurrentFuel < 0)
+                            if (vehicleFuel.CurrentFuel <= 0)
                             {
                                 driveEngaged = false;
                             }
