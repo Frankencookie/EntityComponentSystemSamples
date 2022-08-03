@@ -1,3 +1,6 @@
+Added a fuel system to the vehicles, and added fuel pickups
+UI updates to show current fuel
+
 # DOTS Samples introduction
 
 This repository contains sample projects to help illustrate the following DOTS features:
